@@ -1,0 +1,17 @@
+[base]
+zone_id = 1 # 当前的 Zone ID 
+node = "db0" # 处理的 DB Node
+server_id = 1002  # 服务起 ID ，不能重复
+
+[base.logging] # 日志配置
+    datefmt = ""
+    format = "%(asctime)s %(name)s [%(filename)s:%(lineno)d] [%(levelname)s]: %(message)s"
+    level = "DEBUG"
+
+[base.logging.handler]
+    args = [["./logs/pidal.log.%Y-%m-%d"], ["midnight"]]
+    class = "TimedRotatingFileHandler"
+
+[base.meta_service]
+servers = [{host = "127.0.0.1", port = 8080}, {host = "127.0.0.1", port = 8080}] # pimms 服务地址
+wait_timeout = 10 # 和 pimms 失联多久之后触发失联 

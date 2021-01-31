@@ -1,0 +1,181 @@
+{
+  "version": 1,
+  "zones": [
+    {
+      "zone_id": 1,
+      "zone_name": "BJ",
+      "shardings": [
+        {
+          "zsid": 1,
+          "status": "ACTIVE"
+        },
+        {
+          "zsid": 2,
+          "status": "ACTIVE"
+        }
+      ],
+      "db": {
+        "name": "test_database",
+        "transaction_mod": "a2pc",
+        "idle_in_transaction_session_timeout": 5000,
+        "source_replica": {
+          "enable": true,
+          "algorithm": "random",
+          "algorithm_args": [
+            16
+          ]
+        },
+        "nodes": [
+          {
+            "type": "source",
+            "name": "db0",
+            "dsn": "mysql://root:@127.0.0.1:3306/test",
+            "minimum_pool_size": 1,
+            "maximum_pool_size": 100,
+            "acquire_timeout": 5,
+            "wait_time": 100
+          },
+          {
+            "type": "replica",
+            "name": "db01",
+            "dsn": "mysql://root:@127.0.0.1:3306/test",
+            "maximum_pool_size": 100,
+            "wait_time": 100,
+            "follow": "db0"
+          },
+          {
+            "type": "source",
+            "name": "db1",
+            "dsn": "mysql://root:@127.0.0.1:3306/test",
+            "wait_time": 100,
+            "maximum_pool_size": 100
+          }
+        ],
+        "tables": [
+          {
+            "type": "raw",
+            "name": "test_raw",
+            "status": "ACTIVE",
+            "zskeys": [
+              "xid"
+            ],
+            "zs_algorithm": "mod",
+            "zs_algorithm_args": [
+              4
+            ],
+            "lock_key": "PRIMARY",
+            "strategies": [
+              {
+                "backends": [
+                  "db0.test_raw"
+                ]
+              }
+            ]
+          },
+          {
+            "type": "sharding",
+            "name": "test_sharding",
+            "status": "ACTIVE",
+            "zskeys": [
+              "user_id"
+            ],
+            "zs_algorithm": "mod",
+            "zs_algorithm_args": [
+              4
+            ],
+            "lock_key": "user_id",
+            "strategies": [
+              {
+                "backends": [
+                  "db0.test_s_0",
+                  "db0.test_s_2",
+                  "db1.test_s_{1, 4, 2}"
+                ],
+                "sharding_columns": [
+                  "user_id"
+                ],
+                "algorithm": "mod",
+                "algorithm_args": [
+                  4
+                ]
+              }
+            ]
+          },
+          {
+            "type": "double_sharding",
+            "name": "test_double_sharding",
+            "status": "ACTIVE",
+            "zskeys": [
+              "user_id"
+            ],
+            "zs_algorithm": "mod",
+            "zs_algorithm_args": [
+              4
+            ],
+            "lock_key": "tu",
+            "strategies": [
+              {
+                "backends": [
+                  "db0.test_d_0",
+                  "db0.test_d_2",
+                  "db1.test_d_{1, 4, 2}"
+                ],
+                "sharding_columns": [
+                  "user_id"
+                ],
+                "algorithm": "mod",
+                "algorithm_args": [
+                  4
+                ]
+              },
+              {
+                "backends": [
+                  "db0.test_d1_0",
+                  "db0.test_d1_2",
+                  "db1.test_d1_{1, 4, 2}"
+                ],
+                "sharding_columns": [
+                  "topic_id"
+                ],
+                "algorithm": "mod",
+                "algorithm_args": [
+                  4
+                ]
+              }
+            ]
+          }
+        ],
+        "a2pc": {
+          "servers": [
+            {
+              "host": "127.0.0.1",
+              "port": 9025
+            }
+          ],
+          "backends": [
+            {
+              "type": "source",
+              "name": "tdb0",
+              "dsn": "mysql://root:@127.0.0.1:3306/test",
+              "minimum_pool_size": 1,
+              "maximum_pool_size": 100,
+              "acquire_timeout": 5,
+              "wait_time": 100
+            },
+            {
+              "type": "source",
+              "name": "tdb1",
+              "dsn": "mysql://root:@127.0.0.1:3306/test",
+              "minimum_pool_size": 1,
+              "maximum_pool_size": 100,
+              "acquire_timeout": 5,
+              "wait_time": 100
+            }
+ 
+          ],
+          "mode": "single"
+        }
+      }
+    }
+  ]
+}

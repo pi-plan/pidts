@@ -1,6 +1,6 @@
 import os
 
-from typing import List, Any, Optional, Tuple, MutableMapping
+from typing import Dict, List, Any, Optional, Tuple, MutableMapping, Union
 
 import toml
 
@@ -102,10 +102,43 @@ class LoggingConfig(object):
         return cls._instance
 
 
+class MQConfig(object):
+    _instance: Optional['MQConfig'] = None
+
+    @classmethod
+    def new(cls, type: str, bootstrap_servers: str, client_id: str,
+            topic: str, group_id: str, auto_commit_interval_ms: int = 50,
+            acks: Union[str, int] = 1, timeout: int = 50) -> 'MQConfig':
+        if cls._instance:
+            return cls._instance
+        m = cls(type, bootstrap_servers, client_id, topic, group_id,
+                auto_commit_interval_ms, acks, timeout)
+        cls._instance = m
+        return cls._instance
+
+    @classmethod
+    def get_instance(cls) -> 'MQConfig':
+        if not cls._instance:
+            raise Exception("Not yet initialized")
+        return cls._instance
+
+    def __init__(self, type: str, bootstrap_servers: str, client_id: str,
+                 topic: str, group_id: str, auto_commit_interval_ms: int = 50,
+                 acks: Union[str, int] = 1, timeout: int = 50):
+        self.type = type
+        self.bootstrap_servers = bootstrap_servers
+        self.client_id = client_id
+        self.group_id = group_id
+        self.topic = topic
+        self.acks = acks
+        self.timeout = timeout
+        self.auto_commit_interval_ms = auto_commit_interval_ms
+
+
 def parser_config(zone_id: int, file: str):
     with open(file, "r") as f:
         config = toml.load(f)
-        for i in ["base"]:
+        for i in ["base", "mq"]:
             if i not in config:
                 raise Exception("config file is error.")
 
@@ -140,6 +173,7 @@ def parser_config(zone_id: int, file: str):
 
         MetaService.new(servers,
                         config["base"]["meta_service"]["wait_timeout"])
+        MQConfig.new(**config["mq"])
 
 
 def _get_zone_id(zone_id: int, conf: MutableMapping[str, Any]) -> int:

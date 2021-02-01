@@ -1,5 +1,5 @@
 from meta.model import DBNode
-from replicator.listener.dsn import DSN, Platform
+from common.dsn import DSN, Platform
 from replicator.listener.listener import Listener
 from replicator.listener.mysql import MySQL
 

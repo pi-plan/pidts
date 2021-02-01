@@ -55,12 +55,13 @@ class Client(object):
     def get_db(self, version: Optional[int], zone_id: int) -> Dict[str, Any]:
         return self.get_zones(version).get("db")  # type: ignore
 
-    def report_replicator_process(self, node: str, log_file: str,
-                                  log_pos: int):
+    def report_replicator_process(self, target_zone: int, node: str,
+                                  log_file: str, log_pos: int):
         pass
 
-    def get_replicator_process(self, node: str, log_file: str, log_pos: int):
-        pass
+    def get_replicator_process(self, target_zone: int,
+                               node: str) -> Tuple[Optional[str], int]:
+        return None, 0
 
     def hearbeat(self):
         # TODO finish heartbeat.

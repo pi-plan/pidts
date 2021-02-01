@@ -15,3 +15,13 @@ server_id = 1002  # 服务起 ID ，不能重复
 [base.meta_service]
 servers = [{host = "127.0.0.1", port = 8080}, {host = "127.0.0.1", port = 8080}] # pimms 服务地址
 wait_timeout = 10 # 和 pimms 失联多久之后触发失联 
+
+[mq]
+type = "kafka"
+bootstrap_servers = "127.0.0.1:9092"
+client_id = ""
+acks = 1
+topic = "test"
+timeout = 50
+group_id = ""
+auto_commit_interval_ms = 50

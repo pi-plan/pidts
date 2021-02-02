@@ -23,5 +23,5 @@ client_id = ""
 acks = 1
 topic = "test"
 timeout = 50
-group_id = ""
+group_id = "33"
 auto_commit_interval_ms = 50

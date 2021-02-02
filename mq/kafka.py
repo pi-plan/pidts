@@ -1,3 +1,4 @@
+from typing import Iterator
 from common.config import MQConfig
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -37,10 +38,15 @@ class KafkaC(MQConsumer):
     def __init__(self, conf: MQConfig):
         self.topic = conf.topic
         self.kafka = KafkaConsumer(
+                self.topic,
                 bootstrap_servers=conf.bootstrap_servers,
                 client_id=conf.client_id,
                 group_id=conf.group_id,
-                auto_commit_interval_ms=conf.auto_commit_interval_ms)
+                enable_auto_commit=False,
+                auto_commit_interval_ms=conf.auto_commit_interval_ms,)
+
+    def get_stream(self) -> Iterator:
+        return self.kafka
 
     def close(self):
         self.kafka.close()

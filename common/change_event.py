@@ -24,12 +24,24 @@ class ChangeEventLSN(object):
         self.log_position: int = log_position
         self.xid: int = xid
 
+    def __eq__(self, lsn: 'ChangeEventLSN') -> bool:
+        if not lsn or not isinstance(lsn, ChangeEventLSN):
+            return False
+        if lsn.source_zone_change_no == self.source_zone_change_no and\
+                lsn.server_id == self.server_id and \
+                lsn.log_index == self.log_index and\
+                lsn.log_position == self.log_position and\
+                lsn.xid == lsn.xid:
+            return True
+        else:
+            return False
+
     def encode(self) -> Dict[str, Any]:
         return vars(self)
 
     @classmethod
     def decode(cls, data: Dict[str, Any]):
-        return cls(data["source_zone_id"], data["server_id"],
+        return cls(data["source_zone_change_no"], data["server_id"],
                    data["log_index"],
                    data["log_position"], data["xid"])
 
@@ -95,6 +107,6 @@ class ChangeEvent(object):
         if d["prev_lsn"]:
             prev_lsn = ChangeEventLSN.decode(d["prev_lsn"])
         lsn = ChangeEventLSN.decode(d["lsn"])
-        return cls(prev_lsn, lsn, d["timestamp"], d["event_type"],
+        return cls(prev_lsn, lsn, d["timestamp"], EventType(d["event_type"]),
                    d["source_zone_id"], d["node"], d["db"], d["table"],
                    d["values"], d["is_retry"])

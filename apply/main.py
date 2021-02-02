@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 
 from common import VERSION
 from common.logging import init_logging
@@ -26,4 +27,4 @@ def main():
     parser_config(args["zone_id"], args["config"])
     init_logging(debug)
     r = Apply()
-    r.start()
+    asyncio.run(r.start())

@@ -1,4 +1,5 @@
 import abc
+from typing import Iterator
 from common.config import MQConfig
 
 
@@ -27,4 +28,8 @@ class MQConsumer(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def close(self):
+        pass
+
+    @abc.abstractmethod
+    def get_stream(self) -> Iterator:
         pass

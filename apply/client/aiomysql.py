@@ -1,5 +1,8 @@
 from typing import Any, Dict, List
+
 from aiomysql import create_pool
+from aiomysql.connection import Connection
+from aiomysql.cursors import DictCursor
 
 from common.dsn import DSN
 from apply.client.client import Client
@@ -23,6 +26,7 @@ class AIOMySQL(Client):
         self.pool = await create_pool(minsize=self.minsize,
                                       maxsize=self.maxsize,
                                       pool_recycle=self.pool_recycle,
+                                      cursorclass=DictCursor,
                                       **self.dsn.get_args())
 
     async def execute(self, sql: str) -> int:
@@ -32,5 +36,15 @@ class AIOMySQL(Client):
 
     async def query(self, sql: str) -> List[Dict[str, Any]]:
         async with self.pool.acquire() as conn:
-            r = await conn.query(sql)
-            return await r.fetchall()
+            async with conn.cursor() as cur:
+                await cur.execute(sql)
+                return await cur.fetchall()
+
+    async def acquire(self) -> Connection:
+        return await self.pool.acquire()
+
+    def release(self, conn: Connection):
+        self.pool.release(conn)
+
+    def close(self):
+        self.pool.close()
